@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline HIIT Timer</title>
+    <!--
+        All styling is now internal. No external CSS required.
+        Note: AI features are disabled in offline mode.
+    -->
+    <style>
+        /* --- Color Definitions (Derived from Tailwind) --- */
+        :root {
+            --color-primary: #1d4ed8; /* Blue */
+            --color-work: #dc2626;    /* Red */
+            --color-rest: #10b981;    /* Green */
+            --color-break: #f97316;   /* Orange */
+            --color-prep: #9333ea;    /* Purple */
+            --color-bg-main: #f3f4f6; /* Light Gray */
+            --color-text-main: #1f2937; /* Dark Gray */
+        }
+
+        /* --- Global Styles --- */
+        body {
+            background-color: var(--color-bg-main);
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 48rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* --- Timer Display Styles --- */
+        .timer-display {
+            font-size: 8rem;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+            min-height: 128px;
+            margin-bottom: 2rem;
+            color: var(--color-primary);
+        }
+        @media (max-width: 640px) {
+            .timer-display {
+                font-size: 5rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        /* --- Phase Indicator Styles --- */
+        .phase-indicator {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            display: inline-block;
+            min-width: 200px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 0.5rem;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- Dynamic Colors --- */
+        .text-work { color: var(--color-work); }
+        .bg-work { background-color: var(--color-work); }
+
+        .text-rest { color: var(--color-rest); }
+        .bg-rest { background-color: var(--color-rest); }
+
+        .text-break { color: var(--color-break); }
+        .bg-break { background-color: var(--color-break); }
+
+        .text-prep { color: var(--color-prep); }
+        .bg-prep { background-color: var(--color-prep); }
+
+        .text-primary { color: var(--color-primary); }
+        .bg-primary { background-color: var(--color-primary); }
+
+        /* --- Button Styles --- */
+        .btn-base {
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            font-size: 1.125rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+            border: none;
+        }
+
+        .btn-start {
+            color: white;
+            background-color: var(--color-primary);
+        }
+        .btn-start:hover {
+            background-color: #1e40af; /* Darker blue */
+        }
+
+        .btn-reset {
+            color: white;
+            background-color: #ef4444; /* Red 500 */
+        }
+        .btn-reset:hover {
+            background-color: #dc2626; /* Red 600 */
+        }
+
+        .btn-ai {
+            color: white;
+            background-color: #8b5cf6; /* Purple 500 */
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+            width: auto;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .btn-ai:hover {
+            background-color: #7c3aed; /* Purple 600 */
+        }
+
+        /* --- Cool-down Section --- */
+        .post-workout {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #ecfdf5; /* Green 50 */
+            border-radius: 0.75rem;
+            border: 1px solid #a7f3d0; /* Green 200 */
+            text-align: left;
+        }
+        .post-workout h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #047857; /* Green 700 */
+            margin-bottom: 0.75rem;
+        }
+        .post-workout p {
+            color: var(--color-text-main);
+        }
+
+        /* --- Animation --- */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-strong {
+            animation: pulse 0.5s infinite alternate;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Dynamic Title -->
+        <h1 id="workout-title" style="font-size: 1.875rem; font-weight: bold; margin-bottom: 1rem; color: var(--color-text-main);">Advanced Interval Training</h1>
+
+        <!-- Overall Progress -->
+        <p id="set-count" style="font-size: 1.5rem; font-weight: 600; color: #4b5563;">
+            Set: 1 / 5
+        </p>
+
+        <!-- Phase Indicator (WORK/REST/BREAK) -->
+        <div id="phase-indicator" class="phase-indicator bg-primary">
+            Ready
+        </div>
+
+        <!-- Inner Repetition Counter -->
+        <p id="rep-count" style="font-size: 1.25rem; font-weight: 500; color: #6b7280; margin-bottom: 1.5rem;">
+            Repetition: 1 / 6
+        </p>
+
+        <!-- Timer Display -->
+        <div id="timer-display" class="timer-display">
+            00:07
+        </div>
+
+        <!-- Start/Reset Button -->
+        <button id="start-button" class="btn-base btn-start">
+            Start Workout
+        </button>
+    </div>
+
+    <script>
+        // --- Web Audio API Setup for Offline Beeps ---
+        let audioContext;
+
+        function initAudioContext() {
+            // Initialize AudioContext if it doesn't exist
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const beepSound = (freq = 440, duration = 0.1, volume = 0.2) => {
+            if (!audioContext) initAudioContext();
+            // Resume context in case it was suspended (required after user gesture)
+            if (audioContext.state !== 'running') audioContext.resume();
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            // Quick volume decay to prevent click sound
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        };
+
+        const endSound = () => {
+            // A quick, ascending two-note chime
+            beepSound(261.63, 0.15, 0.3); // C4
+            setTimeout(() => beepSound(329.63, 0.15, 0.3), 150); // E4
+        }
+
+        // --- Configuration (All durations in seconds) ---
+        const PREP_DURATION = 10;
+        const WORK_DURATION = 7;
+        const REST_DURATION = 3;
+        const LONG_BREAK_DURATION = 3 * 60;
+        const TOTAL_REPETITIONS_PER_SET = 6;
+        const TOTAL_SETS = 6;
+
+        // --- State Variables ---
+        let totalSeconds = WORK_DURATION;
+        let intervalId = null;
+        let isRunning = false;
+        let currentSet = 1;
+        let currentRep = 1;
+        let currentPhase = 'WORK';
+
+        // --- DOM Elements ---
+        const timerDisplay = document.getElementById('timer-display');
+        const startButton = document.getElementById('start-button');
+        const phaseIndicator = document.getElementById('phase-indicator');
+        const setCountDisplay = document.getElementById('set-count');
+        const repCountDisplay = document.getElementById('rep-count');
+        const postWorkoutSection = document.getElementById('post-workout-section');
+
+        // --- Utility Functions ---
+
+        /**
+         * Formats the total seconds into MM:SS or just SS string.
+         * @param {number} seconds - The number of seconds remaining.
+         * @returns {string} Formatted time string.
+         */
+        function formatTime(seconds) {
+            // Use MM:SS format only for LONG_BREAK phase, otherwise use SS (for Prep, Work, Rest)
+            if (currentPhase === 'LONG_BREAK' || seconds >= 60) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                const formattedMinutes = String(minutes).padStart(2, '0');
+                const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+                return `${formattedMinutes}:${formattedSeconds}`;
+            } else {
+                return String(seconds).padStart(2, '0');
+            }
+        }
+
+        /**
+         * Updates the UI elements based on the current state.
+         */
+        function updateUI() {
+            timerDisplay.textContent = formatTime(totalSeconds);
+            setCountDisplay.textContent = `Set: ${currentSet} / ${TOTAL_SETS}`;
+            repCountDisplay.textContent = `Repetition: ${currentRep} / ${TOTAL_REPETITIONS_PER_SET}`;
+
+            // Remove all dynamic color classes
+            phaseIndicator.className = 'phase-indicator';
+            timerDisplay.classList.remove('text-work', 'text-rest', 'text-break', 'text-prep', 'text-primary', 'animate-pulse-strong');
+
+            if (isRunning) {
+                let colorClass, indicatorText;
+
+                if (currentPhase === 'PREP') {
+                    colorClass = 'prep';
+                    indicatorText = 'GET READY';
+                } else if (currentPhase === 'WORK') {
+                    colorClass = 'work';
+                    indicatorText = 'WORK';
+                } else if (currentPhase === 'REST') {
+                    colorClass = 'rest';
+                    indicatorText = 'REST';
+                } else { // LONG_BREAK
+                    colorClass = 'break';
+                    indicatorText = 'LONG BREAK';
+                }
+
+                phaseIndicator.textContent = indicatorText;
+                phaseIndicator.classList.add(`bg-${colorClass}`);
+                timerDisplay.classList.add(`text-${colorClass}`);
+
+                // Add visual cue for near completion (last 3 seconds of any phase)
+                if (totalSeconds <= 3 && totalSeconds > 0) {
+                     timerDisplay.classList.add('animate-pulse-strong');
+                }
+
+            } else {
+                // Initial or Done state
+                phaseIndicator.textContent = currentSet > TOTAL_SETS ? 'WORKOUT FINISHED' : 'Ready to Start';
+                phaseIndicator.classList.add('bg-primary');
+                timerDisplay.classList.add('text-primary');
+
+                // If finished, clear rep count
+                if (currentSet > TOTAL_SETS) {
+                    repCountDisplay.textContent = "Great job!";
+                } else {
+                    // Show initial state time and counts
+                    repCountDisplay.textContent = `Repetition: 1 / ${TOTAL_REPETITIONS_PER_SET}`;
+                    timerDisplay.textContent = formatTime(WORK_DURATION);
+                }
+            }
+        }
+
+        /**
+         * Manages phase transitions and handles the countdown.
+         */
+        function countdown() {
+            totalSeconds--;
+
+            // Audio Cue Logic
+            if (currentPhase === 'PREP' && totalSeconds >= 0 && totalSeconds < PREP_DURATION) {
+                beepSound(880, 0.1); // High-pitched beeps for prep
+            } else if (totalSeconds === 0 && currentPhase !== 'LONG_BREAK') {
+                endSound(); // Chime at the very end of Work/Rest/Prep
+            }
+
+
+            updateUI();
+
+            if (totalSeconds <= 0) {
+                // Time for the current phase is up. Transition to the next state.
+
+                if (currentPhase === 'PREP') {
+                    // PREP -> WORK (Start of a new rep/set)
+                    currentPhase = 'WORK';
+                    totalSeconds = WORK_DURATION + 1;
+                }
+                else if (currentPhase === 'WORK') {
+                    // WORK -> REST
+                    currentPhase = 'REST';
+                    totalSeconds = REST_DURATION + 1;
+
+                } else if (currentPhase === 'REST') {
+                    // REST -> Check if Inner Set is complete
+
+                    if (currentRep < TOTAL_REPETITIONS_PER_SET) {
+                        // Inner set not complete -> Next Rep (Go to work immediately)
+                        currentRep++;
+                        currentPhase = 'WORK';
+                        totalSeconds = WORK_DURATION + 1;
+
+                    } else {
+                        // Inner set IS complete (Rep 6 finished) -> Check for Long Break or Done
+
+                        if (currentSet < TOTAL_SETS) {
+                            // Start Long Break
+                            currentPhase = 'LONG_BREAK';
+                            totalSeconds = LONG_BREAK_DURATION + 1;
+                        } else {
+                            // Last set complete -> Finish
+                            endRoutine();
+                            return;
+                        }
+                    }
+
+                } else if (currentPhase === 'LONG_BREAK') {
+                    // LONG_BREAK -> Increment Set and Start PREP for next set
+                    currentSet++;
+                    currentRep = 1;
+                    currentPhase = 'PREP';
+                    totalSeconds = PREP_DURATION + 1;
+                }
+            }
+        }
+
+        /**
+         * Stops the routine and prepares the state for the next start.
+         */
+        function endRoutine() {
+            clearInterval(intervalId);
+            isRunning = false;
+            totalSeconds = 0;
+            currentSet = TOTAL_SETS + 1; // Mark as done for UI update
+            startButton.textContent = 'Start Over';
+            startButton.classList.remove('btn-reset');
+            startButton.classList.add('btn-start');
+            updateUI();
+
+            // Show the static cool-down routine (post-workout-section is the offline placeholder)
+            postWorkoutSection.classList.remove('hidden');
+        }
+
+        /**
+         * Handles the click event for Start/Reset.
+         */
+        function handleButtonClick() {
+            // Attempt to resume audio context on user interaction
+            if (!audioContext) {
+                initAudioContext();
+            }
+            if (audioContext.state !== 'running') {
+                audioContext.resume();
+            }
+
+            if (isRunning) {
+                // Stop/Reset functionality
+                clearInterval(intervalId);
+                isRunning = false;
+                currentSet = 1;
+                currentRep = 1;
+                currentPhase = 'WORK';
+                totalSeconds = WORK_DURATION;
+                startButton.textContent = 'Start Workout';
+                startButton.classList.remove('btn-reset');
+                startButton.classList.add('btn-start');
+                postWorkoutSection.classList.add('hidden'); // Hide stretch content
+                updateUI();
+            } else {
+                // Start functionality
+                isRunning = true;
+
+                // Set button to 'Reset' color
+                startButton.textContent = 'Reset Timer';
+                startButton.classList.remove('btn-start');
+                startButton.classList.add('btn-reset');
+                postWorkoutSection.classList.add('hidden'); // Hide stretch content on start
+
+                // Ensure state is correct and start with PREP phase if starting fresh
+                if (currentSet > TOTAL_SETS) {
+                    currentSet = 1;
+                }
+                currentRep = 1;
+                currentPhase = 'PREP';
+                totalSeconds = PREP_DURATION + 1; // Start PREP immediately
+
+                // Start the countdown
+                updateUI();
+                intervalId = setInterval(countdown, 1000);
+            }
+        }
+
+        // Initialize the display and add event listener
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+            startButton.addEventListener('click', handleButtonClick);
+        });
+
+    </script>
+</body>
+</html>
