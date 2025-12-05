@@ -1,0 +1,16 @@
+{
+  "name": "Hang Timer",
+  "short_name": "Hang",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icons/hang.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
