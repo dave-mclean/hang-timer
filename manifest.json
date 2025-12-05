@@ -3,7 +3,7 @@
   "short_name": "Hang Timer",
   "description": "Interval training timer for hangboard workouts",
   "start_url": "/hang-timer/",
-  "scope": "/",
+  "scope": "/hang-timer/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f3f4f6",
