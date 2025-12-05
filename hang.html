@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1d4ed8">
+    <meta name="description" content="Hang Timer - Interval training timer for hangboard workouts">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/hang.png">
     <title>Hang Timer</title>
     <style>
         /* --- Color Definitions (Derived from Tailwind) --- */
@@ -730,6 +734,19 @@
         });
 
         update_ui();
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
 
     </script>
 
