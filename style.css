@@ -1,6 +1,6 @@
 /* --- Color Definitions (Derived from Tailwind) --- */
 :root {
-    --color-primary: #1d4ed8;
+    --blue: #1d4ed8;
     --color-work: #10b981;
     --color-work-hover: #0a7a55;
     --color-rest: #dc2626;
@@ -38,6 +38,22 @@ body {
     text-align: center;
 }
 
+.picker-label {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin-bottom: 0.5rem;
+}
+
+.picker {
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 2px solid var(--color-primary);
+    text-align: center;
+    width: 100px;
+}
+
 /* --- Timer Display Styles --- */
 .timer-display {
     font-size: 8rem;
@@ -47,7 +63,7 @@ body {
     transition: color 0.3s ease;
     min-height: 128px;
     margin-bottom: 2rem;
-    color: var(--color-primary);
+    color: var(--blue);
 }
 @media (max-width: 640px) {
     .timer-display {
@@ -88,8 +104,8 @@ body {
 .text-prepare { color: var(--color-prepare); }
 .bg-prepare { background-color: var(--color-prepare); }
 
-.text-ready { color: var(--color-primary); }
-.bg-ready { background-color: var(--color-primary); }
+.text-ready { color: var(--blue); }
+.bg-ready { background-color: var(--blue); }
 
 .text-complete { color: var(--color-complete); }
 .bg-complete { background-color: var(--color-complete); }
@@ -126,39 +142,14 @@ body {
 
 .btn-log {
     color: white;
-    background-color: var(--color-primary);
+    background-color: var(--blue);
     margin-top: 1rem;
 }
 .btn-log:hover {
     background-color: #1e40af;
 }
 
-.btn-reset {
-    color: white;
-    background-color: #ef4444; /* Red 500 */
-}
-.btn-reset:hover {
-    background-color: #dc2626; /* Red 600 */
-}
 
-/* --- Cool-down Section --- */
-.post-workout {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background-color: #ecfdf5; /* Green 50 */
-    border-radius: 0.75rem;
-    border: 1px solid #a7f3d0; /* Green 200 */
-    text-align: left;
-}
-.post-workout h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #047857; /* Green 700 */
-    margin-bottom: 0.75rem;
-}
-.post-workout p {
-    color: var(--color-text-main);
-}
 
 /* --- Animation --- */
 @keyframes pulse {
@@ -215,12 +206,6 @@ body {
 }
 
 /* --- Number Input Spinner Styles --- */
-#reps::-webkit-inner-spin-button,
-#reps::-webkit-outer-spin-button,
-#rep-work::-webkit-inner-spin-button,
-#rep-work::-webkit-outer-spin-button,
-#rep-rest::-webkit-inner-spin-button,
-#rep-rest::-webkit-outer-spin-button {
-    opacity: 1;
-    height: 20px;
+input[type='number']::-webkit-inner-spin-button {
+    opacity: 1
 }

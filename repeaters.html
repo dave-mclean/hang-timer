@@ -9,243 +9,8 @@
     <link rel="icon" href="/icons/hang.png">
     <link rel="stylesheet" href="style.css">
     <title>Repeaters</title>
-    <style>
-        /* --- Color Definitions (Derived from Tailwind) --- */
-        :root {
-            --color-primary: #1d4ed8;
-            --color-work: #10b981;
-            --color-work-hover: #0a7a55;
-            --color-rest: #dc2626;
-            --color-rest-hover: #861616;
-            --color-set-rest: #f97316;
-            --color-block-rest: #b95710;
-            --color-prepare: #9333ea;
-            --color-bg-main: #f3f4f6;
-            --color-text-main: #1f2937;
-            --colour-disabled: #767373;
-            --color-stop: #151414;
-            --color-stop-hover: #000000;
-        }
-
-        /* --- Global Styles --- */
-        body {
-            background-color: var(--color-bg-main);
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        .container {
-            background-color: white;
-            padding: 3rem;
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            max-width: 48rem;
-            width: 100%;
-            text-align: center;
-        }
-
-        /* --- Timer Display Styles --- */
-        .timer-display {
-            font-size: 8rem;
-            line-height: 1;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            transition: color 0.3s ease;
-            min-height: 128px;
-            margin-bottom: 2rem;
-            color: var(--color-primary);
-        }
-        @media (max-width: 640px) {
-            .timer-display {
-                font-size: 5rem;
-            }
-            .container {
-                padding: 1rem;
-            }
-        }
-
-        /* --- Phase Indicator Styles --- */
-        .phase-indicator {
-            font-size: 1.5rem;
-            font-weight: 700;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            display: inline-block;
-            min-width: 200px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 0.5rem;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-
-        /* --- Dynamic Colors --- */
-        .text-work { color: var(--color-work); }
-        .bg-work { background-color: var(--color-work); }
-
-        .text-rest { color: var(--color-rest); }
-        .bg-rest { background-color: var(--color-rest); }
-
-        .text-set-rest { color: var(--color-set-rest); }
-        .bg-set-rest { background-color: var(--color-set-rest); }
-
-        .text-block-rest { color: var(--color-block-rest); }
-        .bg-block-rest { background-color: var(--color-block-rest); }
-
-        .text-prepare { color: var(--color-prepare); }
-        .bg-prepare { background-color: var(--color-prepare); }
-
-        .text-ready { color: var(--color-primary); }
-        .bg-ready { background-color: var(--color-primary); }
-
-
-        /* --- Button Styles --- */
-        .btn-base {
-            padding: 0.75rem 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            font-size: 1.125rem;
-            font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
-            outline: none;
-            border: none;
-        }
-
-        .btn-start {
-            color: white;
-            background-color: var(--color-work);
-        }
-        .btn-start:hover {
-            background-color: var(--color-work-hover);
-        }
-
-        .btn-stop {
-            color: white;
-            background-color: var(--color-stop);
-        }
-        .btn-stop:hover {
-            border: 5px solid var(--color-rest);
-        }
-
-        .btn-log {
-            color: white;
-            background-color: var(--color-primary);
-            margin-top: 1rem;
-        }
-        .btn-log:hover {
-            background-color: #1e40af;
-        }
-
-        .btn-reset {
-            color: white;
-            background-color: #ef4444; /* Red 500 */
-        }
-        .btn-reset:hover {
-            background-color: #dc2626; /* Red 600 */
-        }
-
-        /* --- Cool-down Section --- */
-        .post-workout {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #ecfdf5; /* Green 50 */
-            border-radius: 0.75rem;
-            border: 1px solid #a7f3d0; /* Green 200 */
-            text-align: left;
-        }
-        .post-workout h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #047857; /* Green 700 */
-            margin-bottom: 0.75rem;
-        }
-        .post-workout p {
-            color: var(--color-text-main);
-        }
-
-        /* --- Animation --- */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .animate-pulse-strong {
-            animation: pulse 0.5s infinite alternate;
-        }
-        .hidden { display: none; }
-
-        /* --- Settings Dropdown Styles --- */
-        .settings-dropdown {
-            margin-bottom: 1rem;
-        }
-        .settings-toggle {
-            background-color: #cccccc;
-            color: rgb(6, 6, 6);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.2s ease;
-        }
-        .settings-toggle:hover {
-            color: white;
-            background-color: #2e2e2e;
-        }
-        .settings-toggle::after {
-            content: '▼';
-            transition: transform 0.3s ease;
-        }
-        .settings-toggle.expanded::after {
-            transform: rotate(180deg);
-        }
-        .settings-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            background-color: white;
-            border-radius: 0 0 0.5rem 0.5rem;
-            padding: 0;
-        }
-        .settings-content.expanded {
-            max-height: 1000px;
-            padding: 1.5rem;
-        }
-
-        /* --- Number Input Spinner Styles --- */
-        #blocks::-webkit-inner-spin-button,
-        #blocks::-webkit-outer-spin-button,
-        #sets::-webkit-inner-spin-button,
-        #sets::-webkit-outer-spin-button,
-        #reps::-webkit-inner-spin-button,
-        #reps::-webkit-outer-spin-button,
-        #rest-between-blocks::-webkit-inner-spin-button,
-        #rest-between-blocks::-webkit-outer-spin-button,
-        #rest-between-sets::-webkit-inner-spin-button,
-        #rest-between-sets::-webkit-outer-spin-button,
-        #rep-work::-webkit-inner-spin-button,
-        #rep-work::-webkit-outer-spin-button,
-        #rep-rest::-webkit-inner-spin-button,
-        #rep-rest::-webkit-outer-spin-button {
-            opacity: 1;
-            height: 20px;
-        }
-    </style>
 </head>
 <body>
-
     <div class="container">
         <!-- Dynamic Title -->
         <h1 id="workout-title" style="font-size: 1.875rem; font-weight: bold; margin-bottom: 1rem; color: var(--color-text-main);">Repeaters</h1>
@@ -259,36 +24,36 @@
             <div class="settings-content" id="settings-content">
                 <div id="settings" style="display: flex; gap: 2rem; justify-content: center; align-items: flex-end; margin-bottom: 1rem;">
                     <div style="display: flex; flex-direction: column; align-items: center;">
-                        <label for="blocks" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.5rem;">Blocks</label>
-                        <input type="number" id="blocks" value="1" min="1" style="font-size: 1.25rem; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid var(--color-primary); text-align: center; width: 100px;">
+                        <label for="blocks" class="picker-label">Blocks</label>
+                        <input type="number" id="blocks" value="1" min="1" class="picker">
                     </div>
                     <div style="display: flex; flex-direction: column; align-items: center;">
-                        <label for="sets" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.5rem;">Sets</label>
-                        <input type="number" id="sets" value="1" min="1" style="font-size: 1.25rem; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid var(--color-primary); text-align: center; width: 100px;">
+                        <label for="sets" class="picker-label">Sets</label>
+                        <input type="number" id="sets" value="1" min="1" class="picker">
                     </div>
                     <div style="display: flex; flex-direction: column; align-items: center;">
-                        <label for="reps" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.5rem;">Reps</label>
-                        <input type="number" id="reps" value="6" min="1" style="font-size: 1.25rem; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid var(--color-primary); text-align: center; width: 100px;">
+                        <label for="reps" class="picker-label">Reps</label>
+                        <input type="number" id="reps" value="6" min="1" class="picker">
                     </div>
                 </div>
                 <div id="settings-row-2" style="display: flex; gap: 2rem; justify-content: center; align-items: flex-end; margin-bottom: 1rem;">
                     <div style="display: flex; flex-direction: column; align-items: center;">
-                        <label for="rep-work" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.5rem;">Rep Work</label>
-                        <input type="number" id="rep-work" value="6" min="1" style="font-size: 1.25rem; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid var(--color-primary); text-align: center; width: 100px;">
+                        <label for="rep-work" class="picker-label">Rep Work</label>
+                        <input type="number" id="rep-work" value="6" min="1" class="picker">
                     </div>
                     <div style="display: flex; flex-direction: column; align-items: center;">
-                        <label for="rep-rest" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.5rem;">Rep Rest</label>
-                        <input type="number" id="rep-rest" value="4" min="1" style="font-size: 1.25rem; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid var(--color-primary); text-align: center; width: 100px;">
+                        <label for="rep-rest" class="picker-label">Rep Rest</label>
+                        <input type="number" id="rep-rest" value="4" min="1" class="picker">
                     </div>
                 </div>
                 <div id="settings-row-3" style="display: flex; gap: 2rem; justify-content: center; align-items: flex-end; margin-bottom: 1rem;">
                     <div style="display: flex; flex-direction: column; align-items: center;">
-                        <label for="rest-between-blocks" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.5rem;">Rest Between Blocks</label>
-                        <input type="number" id="rest-between-blocks" value="15" min="1" style="font-size: 1.25rem; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid var(--color-primary); text-align: center; width: 100px;">
+                        <label for="rest-between-blocks" class="picker-label">Rest Between Blocks</label>
+                        <input type="number" id="rest-between-blocks" value="15" min="1" class="picker">
                     </div>
                     <div style="display: flex; flex-direction: column; align-items: center;">
-                        <label for="rest-between-sets" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.5rem;">Rest Between Sets</label>
-                        <input type="number" id="rest-between-sets" value="15" min="1" style="font-size: 1.25rem; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid var(--color-primary); text-align: center; width: 100px;">
+                        <label for="rest-between-sets" class="picker-label">Rest Between Sets</label>
+                        <input type="number" id="rest-between-sets" value="15" min="1" class="picker">
                     </div>
                 </div>
             </div>
@@ -327,6 +92,7 @@
 
     </div>
 
+    <script type="text/javascript" src="hang.js"></script>
     <script>
         // --- DOM Elements ---
         const settingsToggle = document.getElementById('settings-toggle')
@@ -358,30 +124,6 @@
         function get_rest_per_block() {return parseInt(restPerBlockUI.value)}
         function get_prepare_seconds() {return 10}
 
-        // Beeps
-        function beep_sound(freq = 440, duration = 0.1, volume = 0.2) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-
-            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-            // Quick volume decay to prevent click sound
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + duration);
-        };
-
-        const go_beep = beep_sound.bind(null, 670, 0.5, 0.5)
-        const ready_beep = beep_sound.bind(null, 500, 0.5, 0.5)
-        const stop_beep = beep_sound.bind(null, 330, 0.5, 0.5)
-
         // --- State Variables ---
         let intervalId = null;
 
@@ -402,7 +144,7 @@
         let current_rep = 1
 
         let phase = "READY"
-        let seconds = 0
+        let seconds = '--'
 
         function begin_workout() {
             disable_settings()
@@ -426,7 +168,7 @@
             current_block = 1
             current_set = 1
             current_rep = 1
-            seconds = 0
+            seconds = '--'
 
             update_ui()
         }
@@ -461,7 +203,7 @@
                 if (current_rep === total_reps) {
                     if (current_set === total_sets) {
                         if (current_block === total_blocks) {
-                            seconds = 0
+                            seconds = '--'
                             phase = 'COMPLETE'
                             clearInterval(intervalId)
                             hide_stop_button()
@@ -608,7 +350,6 @@
 
         function update_ui() {
 
-            timerDisplay.textContent = formatTime(seconds);
             blockCountDisplay.textContent = `Block: ${current_block} / ${total_blocks}`;
             setCountDisplay.textContent = `Set: ${current_set} / ${total_sets}`;
             repCountDisplay.textContent = `Rep: ${current_rep} / ${total_reps}`;
@@ -616,6 +357,8 @@
             // Remove all dynamic color classes
             phaseIndicator.textContent = phase;
             phaseIndicator.className = `phase-indicator bg-${phase.toLowerCase()}`
+
+            timerDisplay.textContent = formatTime(seconds);
             timerDisplay.className = `timer-display text-${phase.toLowerCase()}`
         }
 
@@ -675,25 +418,7 @@
             }
         }
 
-        // --- Utility Functions ---
 
-        /**
-         * Formats the total seconds into MM:SS or just SS string.
-         * @param {number} seconds - The number of seconds remaining.
-         * @returns {string} Formatted time string.
-         */
-        function formatTime(seconds) {
-            // Use MM:SS format only for LONG_BREAK phase, otherwise use SS (for Prep, Work, Rest)
-            if (phase === 'LONG_BREAK' || seconds >= 60) {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                const formattedMinutes = String(minutes).padStart(2, '0');
-                const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-                return `${formattedMinutes}:${formattedSeconds}`;
-            } else {
-                return String(seconds).padStart(2, '0');
-            }
-        }
 
 
         // Initialize the display and add event listeners
@@ -707,15 +432,11 @@
             total_blocks = get_blocks()
             total_sets = get_sets()
             total_reps = get_reps()
-
             work_per_rep = get_work_per_rep()
-
             rest_per_block = get_rest_per_block()
             rest_per_set = get_rest_per_set()
             rest_per_rep = get_rest_per_rep()
-
             prepare_seconds = get_prepare_seconds()
-
             update_ui()
         }
 
